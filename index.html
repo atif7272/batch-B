@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Batch B — Beyond Brilliant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cinzel+Decorative:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #f0c040;
+    --gold2: #ffd700;
+    --deep: #0a0612;
+    --navy: #0d0b1e;
+    --purple: #1a0933;
+    --violet: #6c2bd9;
+    --pink: #e040fb;
+    --teal: #00e5ff;
+    --rose: #ff4081;
+    --white: #f5f0ff;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--white);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ═══════════════════════════════ PARTICLES ═══════════════════════════════ */
+  #particle-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ═══════════════════════════════ HERO ═══════════════════════════════ */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(108,43,217,0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 20% 80%, rgba(224,64,251,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 70%, rgba(0,229,255,0.15) 0%, transparent 60%);
+    z-index: -1;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 8px 28px;
+    border: 1px solid var(--gold);
+    border-radius: 100px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    animation: fadeSlideDown 1s ease both;
+    box-shadow: 0 0 20px rgba(240,192,64,0.3), inset 0 0 20px rgba(240,192,64,0.05);
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.8rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 0%, var(--gold2) 40%, var(--pink) 70%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeSlideUp 1.2s ease 0.3s both, shimmer 4s ease-in-out 1.5s infinite;
+    background-size: 200% auto;
+    filter: drop-shadow(0 0 40px rgba(240,192,64,0.4));
+    margin-bottom: 16px;
+  }
+
+  .hero-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,240,255,0.7);
+    animation: fadeSlideUp 1.2s ease 0.5s both;
+    margin-bottom: 8px;
+  }
+
+  .hero-sub2 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: rgba(0,229,255,0.8);
+    animation: fadeSlideUp 1.2s ease 0.7s both;
+    margin-bottom: 48px;
+  }
+
+  .scroll-hint {
+    animation: bounce 2s ease-in-out 2s infinite, fadeSlideUp 1.2s ease 1s both;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+
+  .scroll-hint span {
+    display: block;
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    margin: 12px auto 0;
+  }
+
+  /* ═══════════════════════════════ SHARED SECTION ═══════════════════════════════ */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 20px;
+  }
+
+  .section-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+
+  .eyebrow.visible { opacity: 1; transform: none; }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s 0.1s, transform 0.7s 0.1s;
+  }
+
+  .section-title.visible { opacity: 1; transform: none; }
+
+  .section-body {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: 400;
+    line-height: 1.9;
+    color: rgba(245,240,255,0.8);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s 0.2s, transform 0.7s 0.2s;
+  }
+
+  .section-body.visible { opacity: 1; transform: none; }
+
+  /* ═══════════════════════════════ ADIL SECTION ═══════════════════════════════ */
+  #adil {
+    background: linear-gradient(180deg, transparent 0%, rgba(108,43,217,0.08) 50%, transparent 100%);
+  }
+
+  #adil .section-title {
+    background: linear-gradient(90deg, #fff 0%, var(--violet) 50%, var(--pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Quote Card */
+  .quote-card {
+    position: relative;
+    margin: 48px auto;
+    padding: 48px 40px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.8s 0.3s, transform 0.8s 0.3s, box-shadow 0.3s;
+  }
+
+  .quote-card.visible { opacity: 1; transform: scale(1); }
+
+  .quote-card:hover {
+    box-shadow: 0 0 60px rgba(108,43,217,0.4), 0 0 120px rgba(224,64,251,0.2);
+    transform: scale(1.02) translateY(-4px);
+  }
+
+  .quote-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, var(--violet), var(--pink), var(--teal), var(--violet));
+    background-size: 300% 300%;
+    animation: gradShift 5s ease infinite;
+    z-index: -1;
+    opacity: 0.5;
+  }
+
+  .quote-card::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 23px;
+    background: var(--navy);
+    z-index: -1;
+  }
+
+  .quote-glyph {
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem;
+    line-height: 0.7;
+    color: var(--violet);
+    display: block;
+    margin-bottom: 24px;
+    opacity: 0.6;
+  }
+
+  .quote-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.5;
+    text-shadow: 0 0 30px rgba(224,64,251,0.5);
+    margin-bottom: 24px;
+  }
+
+  .quote-author {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .quote-hint {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 16px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Easter Egg */
+  .easter-egg-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .easter-egg-overlay.active { display: flex; }
+
+  .easter-egg-msg {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--gold2), var(--pink), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+    animation: pulsate 1s ease infinite;
+  }
+
+  .easter-egg-sub {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 32px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem;
+  }
+
+  .easter-egg-close {
+    padding: 12px 40px;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    border: none;
+    border-radius: 100px;
+    color: white;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .easter-egg-close:hover { transform: scale(1.05); }
+
+  /* ═══════════════════════════════ MARYAM SECTION ═══════════════════════════════ */
+  #maryam {
+    background: linear-gradient(180deg, transparent 0%, rgba(0,229,255,0.05) 50%, transparent 100%);
+  }
+
+  #maryam .section-title {
+    background: linear-gradient(90deg, var(--teal) 0%, #fff 50%, var(--rose) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .trait-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .trait-card {
+    background: var(--glass);
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 16px;
+    padding: 28px 24px;
+    backdrop-filter: blur(12px);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s, transform 0.6s, box-shadow 0.3s;
+  }
+
+  .trait-card.visible { opacity: 1; transform: none; }
+  .trait-card:hover { box-shadow: 0 0 40px rgba(0,229,255,0.2); transform: translateY(-6px); }
+
+  .trait-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+  .trait-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+
+  .trait-desc {
+    font-size: 0.95rem;
+    color: rgba(245,240,255,0.7);
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════ BOND SECTION ═══════════════════════════════ */
+  #bond {
+    text-align: center;
+  }
+
+  #bond .section-title {
+    background: linear-gradient(90deg, var(--gold2) 0%, var(--white) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bond-divider {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 40px 0;
+    opacity: 0;
+    transition: opacity 0.8s 0.3s;
+  }
+
+  .bond-divider.visible { opacity: 1; }
+
+  .bond-divider::before, .bond-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .bond-icon { font-size: 2rem; color: var(--gold); animation: heartbeat 1.5s ease infinite; }
+
+  /* ═══════════════════════════════ BATCH B SECTION ═══════════════════════════════ */
+  #batchb {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  #batchb::before {
+    content: 'B';
+    position: absolute;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 40vw;
+    font-weight: 900;
+    color: rgba(108,43,217,0.04);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  #batchb .section-title {
+    background: linear-gradient(135deg, var(--gold2) 0%, var(--rose) 50%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(240,192,64,0.3));
+  }
+
+  .confetti-btn {
+    display: inline-block;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--violet) 0%, var(--pink) 100%);
+    border: none;
+    border-radius: 100px;
+    color: white;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    margin-top: 32px;
+    box-shadow: 0 0 30px rgba(108,43,217,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+  }
+
+  .confetti-btn:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 0 60px rgba(224,64,251,0.6);
+  }
+
+  /* Confetti canvas */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9000;
+    display: none;
+  }
+
+  /* ═══════════════════════════════ SIGNATURE ═══════════════════════════════ */
+  #signature {
+    padding: 80px 20px 60px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sig-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 20px;
+  }
+
+  .sig-badge {
+    display: inline-block;
+    position: relative;
+    padding: 18px 40px;
+    background: linear-gradient(135deg, rgba(240,192,64,0.1), rgba(108,43,217,0.1));
+    border: 1px solid rgba(240,192,64,0.4);
+    border-radius: 16px;
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--gold2);
+    text-shadow: 0 0 20px rgba(240,192,64,0.6);
+    animation: glowPulse 3s ease-in-out infinite;
+    letter-spacing: 0.02em;
+  }
+
+  .sig-badge::before, .sig-badge::after {
+    content: '✦';
+    position: absolute;
+    font-size: 0.7rem;
+    color: var(--gold);
+    animation: spin 4s linear infinite;
+  }
+
+  .sig-badge::before { top: 8px; left: 12px; }
+  .sig-badge::after { bottom: 8px; right: 12px; animation-direction: reverse; }
+
+  .sig-sub {
+    margin-top: 16px;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* ═══════════════════════════════ EID SECTION ═══════════════════════════════ */
+  #eid {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 120px 20px;
+  }
+
+  #eid::before {
+    content: '☽';
+    position: absolute;
+    font-size: 50vw;
+    color: rgba(240,192,64,0.03);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .eid-crescent-row {
+    font-size: clamp(2rem, 6vw, 4rem);
+    margin-bottom: 24px;
+    animation: fadeSlideDown 1s ease both;
+    letter-spacing: 0.15em;
+  }
+
+  .eid-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.2rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff8dc 0%, var(--gold2) 30%, #ffb347 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: shimmer 4s ease-in-out infinite, fadeSlideUp 1.2s ease 0.2s both;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+
+  .eid-title.visible { opacity: 1; transform: none; }
+
+  .eid-arabic {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: rgba(255,215,0,0.85);
+    text-shadow: 0 0 30px rgba(255,215,0,0.4);
+    margin-bottom: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s 0.15s, transform 0.8s 0.15s;
+  }
+
+  .eid-arabic.visible { opacity: 1; transform: none; }
+
+  .eid-card {
+    max-width: 720px;
+    margin: 0 auto 48px;
+    padding: 48px 40px;
+    background: linear-gradient(135deg, rgba(240,192,64,0.07), rgba(255,140,0,0.05), rgba(240,192,64,0.07));
+    border: 1px solid rgba(240,192,64,0.25);
+    border-radius: 28px;
+    backdrop-filter: blur(16px);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s 0.2s, transform 0.8s 0.2s, box-shadow 0.3s;
+  }
+
+  .eid-card.visible { opacity: 1; transform: none; }
+  .eid-card:hover { box-shadow: 0 0 80px rgba(255,215,0,0.2), 0 0 160px rgba(255,140,0,0.1); }
+
+  .eid-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, var(--gold2), #ffb347, var(--gold2), transparent);
+    background-size: 300% 300%;
+    animation: gradShift 6s ease infinite;
+    z-index: -1;
+    opacity: 0.3;
+  }
+
+  .eid-card::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 27px;
+    background: #080512;
+    z-index: -1;
+  }
+
+  .eid-msg {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    font-style: italic;
+    color: rgba(255,248,220,0.88);
+    line-height: 1.95;
+    margin-bottom: 28px;
+  }
+
+  .eid-highlight {
+    color: var(--gold2);
+    font-weight: 700;
+    font-style: normal;
+    text-shadow: 0 0 12px rgba(255,215,0,0.4);
+  }
+
+  .eid-dua {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: rgba(255,215,0,0.9);
+    line-height: 1.7;
+    border-top: 1px solid rgba(240,192,64,0.2);
+    padding-top: 24px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.3);
+  }
+
+  .eid-stars-row {
+    font-size: 1.6rem;
+    letter-spacing: 0.5em;
+    color: var(--gold2);
+    margin: 28px 0 16px;
+    animation: pulsate 2s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.8s 0.3s;
+  }
+
+  .eid-stars-row.visible { opacity: 1; }
+
+  .eid-tagline {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,215,0,0.55);
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity 0.8s 0.35s;
+  }
+
+  .eid-tagline.visible { opacity: 1; }
+
+  .eid-btn {
+    display: inline-block;
+    padding: 16px 52px;
+    background: linear-gradient(135deg, #c8860a 0%, var(--gold2) 50%, #c8860a 100%);
+    background-size: 200% auto;
+    border: none;
+    border-radius: 100px;
+    color: #1a0a00;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 0 30px rgba(255,215,0,0.4), 0 4px 20px rgba(0,0,0,0.4);
+    animation: shimmer 3s ease-in-out infinite, fadeSlideUp 0.8s ease 0.4s both;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .eid-btn:hover {
+    transform: scale(1.06) translateY(-3px);
+    box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 8px 30px rgba(0,0,0,0.4);
+  }
+
+  @keyframes lanternFloat {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-18px) rotate(4deg); }
+  }
+
+  .lantern {
+    display: inline-block;
+    font-size: clamp(2rem, 4vw, 3rem);
+    animation: lanternFloat 3s ease-in-out infinite;
+  }
+
+  .lantern:nth-child(2) { animation-delay: 0.5s; }
+  .lantern:nth-child(3) { animation-delay: 1s; }
+  .lantern:nth-child(4) { animation-delay: 1.5s; }
+  .lantern:nth-child(5) { animation-delay: 2s; }
+
+  /* ═══════════════════════════════ ANIMATIONS ═══════════════════════════════ */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+    100% { background-position: 0% center; }
+  }
+
+  @keyframes gradShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulsate {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.2); }
+    56% { transform: scale(1); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(108,43,217,0.5); }
+    50% { box-shadow: 0 0 60px rgba(224,64,251,0.7), 0 0 100px rgba(108,43,217,0.3); }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(240,192,64,0.3), inset 0 0 20px rgba(240,192,64,0.05); }
+    50% { box-shadow: 0 0 50px rgba(240,192,64,0.5), inset 0 0 30px rgba(240,192,64,0.1); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
+  }
+
+  /* ═══════════════════════════════ RESPONSIVE ═══════════════════════════════ */
+  @media (max-width: 600px) {
+    .quote-card { padding: 32px 20px; }
+    .trait-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 400px) {
+    .trait-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Floating emoji burst */
+  .burst-emoji {
+    position: fixed;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 9001;
+    animation: floatUp 1.5s ease-out forwards;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- EASTER EGG OVERLAY -->
+<div class="easter-egg-overlay" id="easterEgg">
+  <div class="easter-egg-msg">🏆 Legends Never Bluff 🏆</div>
+  <div class="easter-egg-sub">"Maar kha lon ga but proxy zaroor lagaon ga"<br>— Adil Nasir Malik, an Icon</div>
+  <p style="color:rgba(255,255,255,0.5); margin-bottom:32px; font-size:0.95rem; max-width:400px; line-height:1.7;">
+    This isn't just a quote. It's a philosophy. A commitment to showing up, no matter the cost. B-53 runs in his veins. 🩺
+  </p>
+  <button class="easter-egg-close" onclick="closeEgg()">Close & Carry On 🚀</button>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="hero">
+  <div class="hero-badge">Rawalpindi Medical College · Batch B · B-53 MBBS</div>
+  <h1 class="hero-title">Batch B —<br>Beyond Brilliant</h1>
+  <p class="hero-sub">A Tribute From The Heart</p>
+  <p class="hero-sub2">For those who make every lecture feel like destiny</p>
+  <div class="scroll-hint">
+    Scroll to begin
+    <span></span>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ ADIL ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="adil">
+  <div class="section-inner">
+    <p class="eyebrow">A tribute to</p>
+    <h2 class="section-title">Adil Nasir Malik</h2>
+    <p class="section-body">
+      Some people walk into a room and immediately shift its atmosphere — Adil is that person. He carries an effortless charisma that makes the boring unbearable and the hard stuff somehow survivable. In B-53, where every day demands grit, Adil shows up with something rarer: unshakeable commitment wrapped in humor. He doesn't just attend — he commits. Fully. Unconditionally. Even at personal cost.
+    </p>
+
+    <!-- THE QUOTE CARD -->
+    <div class="quote-card" id="quoteCard" onclick="triggerEasterEgg()">
+      <span class="quote-glyph">"</span>
+      <p class="quote-text">Maar kha lon ga but proxy zaroor lagaon ga</p>
+      <p class="quote-author">— Adil Nasir Malik · B-53 · Batch B</p>
+      <p class="quote-hint">✨ Click to reveal something special ✨</p>
+    </div>
+
+    <p class="section-body" style="margin-top: 32px;">
+      That single line says everything. It's not just about attendance — it's about loyalty to your people, to your batch, to the shared grind. Adil doesn't let his batchmates down. Not today. Not ever. He is the proxy king and the heart of every study circle that somehow always turns into a mehfil. Long may he reign. 👑
+    </p>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ MARYAM ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="maryam">
+  <div class="section-inner">
+    <p class="eyebrow">A tribute to</p>
+    <h2 class="section-title">Maryam Qasim Abbasi</h2>
+    <p class="section-body">
+      If Batch B had a soul, Maryam would be its warmest corner. She is the kind of person whose presence makes a difficult day feel manageable — not because she minimizes the struggle, but because she genuinely cares about the people around her. In a world of competitive pressures and packed timetables, she chooses kindness as a default. Every single time.
+    </p>
+
+    <div class="trait-grid" style="margin-top:40px;">
+      <div class="trait-card">
+        <span class="trait-icon">🤝</span>
+        <p class="trait-label">Cooperative</p>
+        <p class="trait-desc">Never too busy to help a batchmate understand something they've missed — notes, concepts, moral support, all freely given.</p>
+      </div>
+      <div class="trait-card" style="transition-delay:0.1s">
+        <span class="trait-icon">☀️</span>
+        <p class="trait-label">Warm & Friendly</p>
+        <p class="trait-desc">The kind of friendly that doesn't feel performative — it's genuine warmth that just radiates from her naturally.</p>
+      </div>
+      <div class="trait-card" style="transition-delay:0.2s">
+        <span class="trait-icon">📚</span>
+        <p class="trait-label">Dedicated Learner</p>
+        <p class="trait-desc">Takes the craft of medicine seriously. Curiosity paired with discipline — the exact combination MBBS demands.</p>
+      </div>
+      <div class="trait-card" style="transition-delay:0.3s">
+        <span class="trait-icon">💫</span>
+        <p class="trait-label">Quietly Brilliant</p>
+        <p class="trait-desc">Doesn't need to announce her capabilities. She just delivers, consistently, without the drama.</p>
+      </div>
+    </div>
+
+    <p class="section-body" style="margin-top:40px;">
+      Maryam Qasim Abbasi is proof that a genuinely good person can also be genuinely excellent. B-53 is richer, warmer, and more human because she's part of it. That's not a small thing — in one of the most demanding journeys of a young person's life, having someone like her nearby is everything.
+    </p>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ BOND ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="bond">
+  <div class="section-inner">
+    <p class="eyebrow">On what matters</p>
+    <h2 class="section-title">Short Time,<br>Real Bond</h2>
+    <div class="bond-divider">
+      <span class="bond-icon">♡</span>
+    </div>
+    <p class="section-body">
+      It's been a short time — barely a blink in the grand arc of what MBBS will demand of all of us. Yet something real has already formed. Not the kind of friendship that needs time to be convincing, but the kind that clicks immediately and carries weight. Adil, Maryam — you're not just batchmates. You're the kind of people that make a hard path feel shared, and that changes everything.
+    </p>
+    <p class="section-body" style="margin-top: 24px;">
+      The years ahead are going to be defining. Long nights, impossible syllabi, moments of doubt, and eventually — the kind of triumph that only medicine can hand you. And when those moments come, the people beside you matter more than anything. Consider this a small but permanent record: you were appreciated. Genuinely. Early. Before the grind had a chance to make anyone forget.
+    </p>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ BATCH B ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="batchb">
+  <div class="section-inner">
+    <p class="eyebrow">To every single one of you</p>
+    <h2 class="section-title">Batch B, B-53 MBBS<br>Rawalpindi Medical College</h2>
+    <p class="section-body">
+      You chose medicine. You chose one of the hardest, longest, most humbling paths a human being can walk. And you're walking it together — in the same halls, the same dissection labs, the same lecture theatres that have seen generations of doctors-in-progress. That is not nothing. That is everything.
+    </p>
+    <p class="section-body" style="margin-top: 24px;">
+      Batch B is not just a label. It's a cohort of futures — doctors, researchers, human beings who will one day hold someone's life in their hands. The boldness is already there. The brilliance is already there. What's forming right now — the friendships, the inside jokes, the shared exhaustion — that's the foundation for a lifetime.
+    </p>
+    <p class="section-body" style="margin-top: 24px; font-size: 1.3rem; color: var(--gold2); font-family: 'Playfair Display', serif; font-style: italic; text-align:center;">
+      "Go far, Batch B. You were born for this."
+    </p>
+
+    <button class="confetti-btn" onclick="launchConfetti()">
+      🎉 Celebrate Batch B 🎉
+    </button>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ EID UL FITR ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="eid">
+  <div class="section-inner">
+    <div class="eid-crescent-row">☽ ✦ ☾</div>
+    <p class="eyebrow">In advance, with love</p>
+    <h2 class="eid-title">Eid ul Fitr<br>Mubarak</h2>
+    <p class="eid-arabic">عيد مبارك — Blessed Eid to All of Batch B 🌙</p>
+
+    <div class="eid-card">
+      <p class="eid-msg">
+        To every single soul in <span class="eid-highlight">Batch B, B-53 MBBS</span> — before the crescent moon is sighted, before the takbeers fill the air, before the sewaiyaan are shared and the new clothes are worn — this wish arrives early, because you all deserve to know that you are thought of.
+        <br/><br/>
+        This Eid, as you step away from your lecture notes and anatomy atlases for just a moment — may it be the sweetest break you've earned. You've been fasting in every sense: fasting through early mornings, long labs, and the quiet grind of becoming something extraordinary. You deserve every blessing this blessed month closes with.
+      </p>
+      <p class="eid-dua">
+        May Allah accept your ibadah, forgive your shortcomings,<br/>
+        fill your homes with laughter, your hearts with peace,<br/>
+        and your futures with the success you're working so hard for. 🤲<br/><br/>
+        Taqabbal Allahu minna wa minkum.
+      </p>
+    </div>
+
+    <div class="eid-stars-row">🌙 ⭐ 🌟 ⭐ 🌙</div>
+
+    <div style="margin: 20px 0 28px; opacity:0; transition: opacity 0.8s 0.4s;" class="lantern-row">
+      <span class="lantern">🪔</span>
+      <span class="lantern">🌙</span>
+      <span class="lantern">✨</span>
+      <span class="lantern">🌙</span>
+      <span class="lantern">🪔</span>
+    </div>
+
+    <p class="eid-tagline">Batch B · B-53 MBBS · Rawalpindi Medical College · 2025</p>
+
+    <br/>
+    <button class="eid-btn" onclick="launchEidFireworks()">
+      🌙 Send Eid Wishes 🌙
+    </button>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ SIGNATURE ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<footer id="signature">
+  <p class="sig-label">Created with love by</p>
+  <div class="sig-badge">Ali Atif_𝖙𝖎𝖋𝖋𝓝𝖊𝖚𝖗𝖔-◉⁠‿⁠◉</div>
+  <p class="sig-sub">Batch B · B-53 · Rawalpindi Medical College · 2025</p>
+</footer>
+
+<script>
+/* ═══════════════ PARTICLE SYSTEM ═══════════════ */
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  const colors = ['#f0c040','#6c2bd9','#e040fb','#00e5ff','#ff4081','#ffffff'];
+
+  for (let i = 0; i < 100; i++) {
+    particles.push({
+      x: Math.random() * 1920,
+      y: Math.random() * 1080,
+      r: Math.random() * 2.5 + 0.3,
+      dx: (Math.random() - 0.5) * 0.4,
+      dy: (Math.random() - 0.5) * 0.4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.6 + 0.1,
+      pulse: Math.random() * Math.PI * 2
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const t = Date.now() * 0.001;
+
+    particles.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      p.pulse += 0.02;
+
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+
+      const a = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));
+      ctx.globalAlpha = a;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+
+/* ═══════════════ SCROLL REVEAL ═══════════════ */
+(function() {
+  const els = document.querySelectorAll('.eyebrow, .section-title, .section-body, .quote-card, .trait-card, .bond-divider');
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  els.forEach(el => obs.observe(el));
+
+  document.querySelectorAll('.eid-title, .eid-arabic, .eid-card, .eid-stars-row, .eid-tagline, .lantern-row').forEach(el => obs.observe(el));
+})();
+
+/* ═══════════════ EID FIREWORKS ═══════════════ */
+function launchEidFireworks() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const eidColors = ['#ffd700','#ffb347','#fff8dc','#ffe066','#ffecb3','#c8860a','#fffacd','#ffffff'];
+  const pieces = [];
+  for (let i = 0; i < 200; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 9;
+    pieces.push({
+      x: canvas.width * (0.15 + Math.random() * 0.7),
+      y: canvas.height * (0.2 + Math.random() * 0.5),
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 4,
+      r: 3 + Math.random() * 6,
+      color: eidColors[Math.floor(Math.random() * eidColors.length)],
+      alpha: 1,
+      gravity: 0.13,
+      shape: Math.random() > 0.45 ? 'star' : 'circle',
+      rot: Math.random() * Math.PI * 2,
+      drot: (Math.random() - 0.5) * 0.18
+    });
+  }
+  let frame = 0;
+  function drawStar(c, x, y, r, rot) {
+    c.save(); c.translate(x, y); c.rotate(rot); c.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
+      const b = (i * 4 * Math.PI / 5 + 2 * Math.PI / 5) - Math.PI / 2;
+      c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      c.lineTo(Math.cos(b) * r * 0.4, Math.sin(b) * r * 0.4);
+    }
+    c.closePath(); c.fill(); c.restore();
+  }
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.rot += p.drot;
+      if (frame > 65) p.alpha -= 0.016;
+      p.alpha = Math.max(0, p.alpha);
+      ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 10;
+      if (p.shape === 'star') drawStar(ctx, p.x, p.y, p.r, p.rot);
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    if (frame < 145) requestAnimationFrame(animate);
+    else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.style.display = 'none'; }
+  }
+  animate();
+  spawnEmojis(['🌙','⭐','🌟','✨','🪔','🤲','🎊','🕌','💛','🌙','☪️','🥳'], 38);
+}
+
+/* ═══════════════ EASTER EGG ═══════════════ */
+function triggerEasterEgg() {
+  document.getElementById('easterEgg').classList.add('active');
+  spawnEmojis(['🏆','🩺','💉','📖','😤','🔥','👑','⚡'], 20);
+}
+
+function closeEgg() {
+  document.getElementById('easterEgg').classList.remove('active');
+}
+
+document.getElementById('easterEgg').addEventListener('click', function(e) {
+  if (e.target === this) closeEgg();
+});
+
+/* ═══════════════ EMOJI BURST ═══════════════ */
+function spawnEmojis(list, count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'burst-emoji';
+      el.textContent = list[Math.floor(Math.random() * list.length)];
+      el.style.left = Math.random() * 90 + 'vw';
+      el.style.top = Math.random() * 80 + 'vh';
+      el.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+      el.style.animationDuration = (1 + Math.random()) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }, i * 60);
+  }
+}
+
+/* ═══════════════ CONFETTI ═══════════════ */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#f0c040','#6c2bd9','#e040fb','#00e5ff','#ff4081','#fff','#ffd700','#ff6b6b'];
+
+  for (let i = 0; i < 200; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 200,
+      w: 6 + Math.random() * 10,
+      h: 3 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      dx: (Math.random() - 0.5) * 4,
+      dy: 2 + Math.random() * 5,
+      rot: Math.random() * Math.PI * 2,
+      drot: (Math.random() - 0.5) * 0.2,
+      alpha: 1
+    });
+  }
+
+  let frame = 0;
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+
+    pieces.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      p.rot += p.drot;
+      if (frame > 80) p.alpha -= 0.015;
+      p.alpha = Math.max(0, p.alpha);
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+
+    if (frame < 130) {
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = 'none';
+    }
+  }
+
+  animate();
+  spawnEmojis(['🎉','🎊','⭐','🏥','👨‍⚕️','👩‍⚕️','🩺','💊','🎓','🔥','💫','✨'], 30);
+}
+</script>
+</body>
+</html>
