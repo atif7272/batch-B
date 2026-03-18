@@ -716,6 +716,173 @@
   .lantern:nth-child(4) { animation-delay: 1.5s; }
   .lantern:nth-child(5) { animation-delay: 2s; }
 
+  /* ═══════════════════════════════ ROLL OF HONOUR ═══════════════════════════════ */
+  #rollhonour {
+    background: linear-gradient(180deg, transparent 0%, rgba(0,229,255,0.04) 50%, transparent 100%);
+  }
+
+  .honour-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .honour-block {
+    position: relative;
+    padding: 22px 16px 18px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+    transition: opacity 0.5s, transform 0.5s, box-shadow 0.25s, border-color 0.25s;
+    backdrop-filter: blur(10px);
+  }
+
+  .honour-block.visible { opacity: 1; transform: none; }
+
+  .honour-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--block-c1, var(--violet)), var(--block-c2, var(--teal)));
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+  }
+
+  .honour-block:hover::before { opacity: 0.15; }
+  .honour-block:hover {
+    border-color: var(--block-c1, var(--teal));
+    box-shadow: 0 0 30px color-mix(in srgb, var(--block-c1, var(--teal)) 50%, transparent);
+    transform: translateY(-5px) scale(1.03);
+  }
+
+  .honour-block:active { transform: scale(0.97); }
+
+  .hb-emoji {
+    display: block;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s;
+  }
+
+  .honour-block:hover .hb-emoji { transform: scale(1.25) rotate(-5deg); }
+
+  .hb-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    position: relative;
+    z-index: 1;
+    line-height: 1.3;
+  }
+
+  .hb-role {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--block-c1, var(--teal));
+    margin-top: 5px;
+    position: relative;
+    z-index: 1;
+    opacity: 0.85;
+  }
+
+  /* Shimmer sweep on hover */
+  .honour-block::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    transition: left 0.5s ease;
+    z-index: 0;
+  }
+
+  .honour-block:hover::after { left: 150%; }
+
+  /* ═══════════════════════════════ NAME POPUP ═══════════════════════════════ */
+  .name-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(5,2,15,0.82);
+    backdrop-filter: blur(12px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .name-popup.active { display: flex; }
+
+  .name-popup-card {
+    position: relative;
+    max-width: 440px;
+    width: 100%;
+    padding: 48px 36px 40px;
+    background: var(--navy);
+    border-radius: 24px;
+    text-align: center;
+    border: 1px solid var(--popup-color, var(--teal));
+    box-shadow: 0 0 60px color-mix(in srgb, var(--popup-color, var(--teal)) 40%, transparent);
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 14px; right: 18px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .popup-close:hover { color: white; }
+
+  .popup-emoji { font-size: 3.5rem; margin-bottom: 12px; animation: heartbeat 1.5s ease infinite; }
+
+  .popup-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 700;
+    color: var(--popup-color, var(--teal));
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px color-mix(in srgb, var(--popup-color, var(--teal)) 60%, transparent);
+  }
+
+  .popup-tag {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 20px;
+  }
+
+  .popup-msg {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(245,240,255,0.82);
+    line-height: 1.8;
+  }
+
   /* ═══════════════════════════════ ANIMATIONS ═══════════════════════════════ */
   @keyframes fadeSlideUp {
     from { opacity: 0; transform: translateY(40px); }
@@ -926,6 +1093,27 @@
   </div>
 </section>
 
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━ ROLL OF HONOUR ━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section id="rollhonour">
+  <div class="section-inner" style="max-width:1000px;">
+    <p class="eyebrow">Every name, every soul</p>
+    <h2 class="section-title" style="background:linear-gradient(90deg,var(--teal),var(--white),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">The Roster of B-53</h2>
+    <p class="section-body" style="text-align:center;margin-bottom:48px;">Tap any name. Every one of you has something worth celebrating. 👇</p>
+    <div class="honour-grid" id="honourGrid"></div>
+  </div>
+</section>
+
+<!-- Name popup modal -->
+<div class="name-popup" id="namePopup">
+  <div class="name-popup-card" id="namePopupCard">
+    <button class="popup-close" onclick="closePopup()">✕</button>
+    <div class="popup-emoji" id="popupEmoji"></div>
+    <h3 class="popup-name" id="popupName"></h3>
+    <p class="popup-tag" id="popupTag"></p>
+    <p class="popup-msg" id="popupMsg"></p>
+  </div>
+</div>
+
 <!-- ━━━━━━━━━━━━━━━━━━━━━━━━ EID UL FITR ━━━━━━━━━━━━━━━━━━━━━━━━ -->
 <section id="eid">
   <div class="section-inner">
@@ -1052,6 +1240,70 @@
 
   document.querySelectorAll('.eid-title, .eid-arabic, .eid-card, .eid-stars-row, .eid-tagline, .lantern-row').forEach(el => obs.observe(el));
 })();
+
+/* ═══════════════ ROLL OF HONOUR ═══════════════ */
+const batchmates = [
+  { name: "Abdul Moiz",      emoji: "💈", role: "The Charmer",         color1: "#a855f7", color2: "#ec4899",
+    msg: "Silky hair, smoother personality. Abdul Moiz walks into a room and somehow makes everything cooler — effortlessly. B-53 has style because of him." },
+  { name: "Mahibah Atif",    emoji: "🤝", role: "The Helper",          color1: "#06b6d4", color2: "#3b82f6",
+    msg: "The go-to person when you need a hand, a note, or just someone who actually listens. Mahibah's cooperativeness is a superpower she deploys daily." },
+  { name: "Hadia Shahid",    emoji: "📸", role: "The Photographer",    color1: "#f59e0b", color2: "#ef4444",
+    msg: "Every great moment needs someone to capture it — that's Hadia. Behind every memorable photo of B-53 is her eye, her timing, her magic." },
+  { name: "Leeza",           emoji: "✨", role: "The Spark",           color1: "#f0abfc", color2: "#818cf8",
+    msg: "Some people just have an energy that lights up space around them. Leeza is exactly that — a spark that keeps the batch alive and warm." },
+  { name: "Abdul Ahad Abbasi", emoji: "⚡", role: "The Force",          color1: "#10b981", color2: "#06b6d4",
+    msg: "Quiet strength, real presence. Abdul Ahad carries himself with a certainty that inspires confidence in everyone around him. A force, no doubt." },
+  { name: "Adil Nasir Malik",emoji: "👑", role: "The Legend",          color1: "#6c2bd9", color2: "#e040fb",
+    msg: "\"Maar kha lon ga but proxy zaroor lagaon ga.\" Need anything else be said? The icon. The myth. The king of B-53. 👑" },
+  { name: "Maryam Qasim",    emoji: "🌸", role: "The Soul",            color1: "#f43f5e", color2: "#fb923c",
+    msg: "Warm, genuine, brilliant — Maryam Qasim Abbasi is the heart this batch didn't know it needed until she was already essential." },
+  { name: "Every B-53 Soul", emoji: "🩺", role: "The Whole Batch",     color1: "#ffd700", color2: "#ff6b6b",
+    msg: "To every name not listed, every face in the lecture hall, every person grinding through MBBS — you are seen, appreciated, and unforgettable." },
+];
+
+const grid = document.getElementById('honourGrid');
+
+batchmates.forEach((bm, i) => {
+  const block = document.createElement('div');
+  block.className = 'honour-block';
+  block.style.setProperty('--block-c1', bm.color1);
+  block.style.setProperty('--block-c2', bm.color2);
+  block.style.transitionDelay = (i * 0.07) + 's';
+  block.innerHTML = `
+    <span class="hb-emoji">${bm.emoji}</span>
+    <div class="hb-name">${bm.name}</div>
+    <div class="hb-role">${bm.role}</div>
+  `;
+  block.addEventListener('click', () => openPopup(bm));
+  grid.appendChild(block);
+});
+
+// Observe all honour blocks
+const honourObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.honour-block').forEach(el => honourObs.observe(el));
+
+function openPopup(bm) {
+  const popup = document.getElementById('namePopup');
+  const card = document.getElementById('namePopupCard');
+  document.getElementById('popupEmoji').textContent = bm.emoji;
+  document.getElementById('popupName').textContent = bm.name;
+  document.getElementById('popupTag').textContent = bm.role + ' · B-53 · Batch B';
+  document.getElementById('popupMsg').textContent = bm.msg;
+  card.style.setProperty('--popup-color', bm.color1);
+  popup.classList.add('active');
+  spawnEmojis([bm.emoji, '⭐', '✨', '💫'], 12);
+}
+
+function closePopup() {
+  document.getElementById('namePopup').classList.remove('active');
+}
+
+document.getElementById('namePopup').addEventListener('click', function(e) {
+  if (e.target === this) closePopup();
+});
 
 /* ═══════════════ EID FIREWORKS ═══════════════ */
 function launchEidFireworks() {
